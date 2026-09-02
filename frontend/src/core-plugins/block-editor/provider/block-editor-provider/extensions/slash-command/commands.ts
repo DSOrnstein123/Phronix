@@ -89,7 +89,7 @@ const commands: CommandItemProps[] = [
         .chain()
         .deleteRange(range)
         .insertContent({
-          type: "content-block",
+          type: "callout",
         })
         .run();
     },

@@ -1,8 +1,8 @@
 import { StarterKit, Placeholder } from "@system/lib/tiptap";
 import CustomLink from "./custom-link/customLink";
 import SlashCommandExtension from "./slash-command/slashCommands";
-import ContentBlock from "./content-block/contentBlock";
-import { FloatDragExtension } from "./dnd/floatDragExtension";
+import { Callout } from "./callout/contentBlock";
+import { FloatDragExtension } from "./float-block/dnd/floatDragExtension";
 import { Column } from "./column/column";
 import { ColumnContainer } from "./column/columnContainer";
 import { CustomCodeBlock } from "./custom-code-block/CustomCodeBlock";
@@ -22,7 +22,6 @@ export const richTextEditorExtensions = [
     openOnClick: false,
   }),
   SlashCommandExtension,
-  ContentBlock,
   Placeholder.configure({
     showOnlyCurrent: true,
     placeholder: () => {
@@ -30,6 +29,7 @@ export const richTextEditorExtensions = [
     },
   }),
   FloatDragExtension,
+  Callout,
   Column,
   ColumnContainer,
   CustomCodeBlock.configure({

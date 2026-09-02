@@ -1,5 +1,9 @@
 @import url(./bullet-list/bullet-list.css);
 @import url(./code/code.css);
-@import url(./dnd/dnd.css);
 @import url(./column/column.css);
 @import url(./custom-link/link.css);
+@import url(./float-block/dnd/dnd.css);
+
+.ProseMirror p + p {
+  margin-top: 14px;
+}

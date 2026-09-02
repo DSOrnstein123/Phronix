@@ -25,7 +25,7 @@ const hideDragIndicator = () => {
 
 export function syncAlignAttrs(view: EditorView) {
   (view.dom as HTMLElement)
-    .querySelectorAll<HTMLElement>(".react-renderer.node-content-block")
+    .querySelectorAll<HTMLElement>(".react-renderer[data-float-block]")
     .forEach((wrapper) => {
       let raw: number;
       try {
@@ -39,9 +39,11 @@ export function syncAlignAttrs(view: EditorView) {
         const pName = $pos.node(d - 1).type.name;
         if (pName === "doc" || pName === "column") {
           const node = view.state.doc.nodeAt($pos.before(d));
-          if (!node || node.type.name !== "content-block") break;
+          if (!node || !node.type.isInGroup("floatBlock")) break;
+
           const align: string = node.attrs.align ?? "center";
           if (wrapper.dataset.align !== align) wrapper.dataset.align = align;
+
           break;
         }
       }
@@ -252,7 +254,7 @@ export const FloatDragExtension = Extension.create({
                   if (!parent) break;
                   if (
                     el.classList.contains("react-renderer") &&
-                    el.classList.contains("node-content-block") &&
+                    el.hasAttribute("data-float-block") &&
                     (parent === view.dom ||
                       parent.getAttribute("data-type") === "column")
                   ) {
@@ -315,8 +317,10 @@ export const FloatDragExtension = Extension.create({
               if (!blockDOM) return false;
 
               const slice = view.dragging?.slice;
-              if (!slice?.content.firstChild?.type.spec.attrs?.align)
+              const draggedNode = slice?.content.firstChild;
+              if (!draggedNode?.type.isInGroup("floatBlock")) {
                 return false;
+              }
 
               const rect = blockDOM.getBoundingClientRect();
               const relX = event.clientX - rect.left;

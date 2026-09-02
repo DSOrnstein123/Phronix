@@ -14,26 +14,32 @@ const ColumnContainerView = ({
   const [isResizing, setIsResizing] = useState(false);
 
   const startResize = (e: React.MouseEvent) => {
+    const container = containerRef.current;
+    if (!container) return;
+
     e.preventDefault();
+
     setIsResizing(true);
     const startX = e.pageX;
     const startLayout = [...layout];
-    const containerWidth = containerRef.current?.offsetWidth || 1;
+    const containerWidth = container.offsetWidth || 1;
 
-    const onMouseMove = (moveEvent: MouseEvent) => {
-      const deltaX = moveEvent.pageX - startX;
+    const onMouseMove = (event: MouseEvent) => {
+      const deltaX = event.pageX - startX;
       const deltaPercent = (deltaX / containerWidth) * 100;
 
-      let newLeft = startLayout[0] + deltaPercent;
-      let newRight = startLayout[1] - deltaPercent;
+      const snap = 10;
+      const min = 20;
+      const max = 80;
 
-      if (newLeft < 10) {
-        newLeft = 10;
-        newRight = 90;
-      } else if (newRight < 10) {
-        newRight = 10;
-        newLeft = 90;
-      }
+      const newLeft = Math.max(
+        min,
+        Math.min(
+          max,
+          Math.round((startLayout[0] + deltaPercent) / snap) * snap,
+        ),
+      );
+      const newRight = 100 - newLeft;
 
       updateAttributes({ layout: [newLeft, newRight] });
     };
@@ -52,12 +58,10 @@ const ColumnContainerView = ({
     <NodeViewWrapper
       ref={containerRef}
       className="group column-container-wrapper relative my-4 w-full"
-      style={
-        {
-          "--col-left": `${layout[0]}fr`,
-          "--col-right": `${layout[1]}fr`,
-        } as React.CSSProperties
-      }
+      style={{
+        "--col-left": `${layout[0]}fr`,
+        "--col-right": `${layout[1]}fr`,
+      }}
     >
       <NodeViewContent className="column-content-core" />
 
