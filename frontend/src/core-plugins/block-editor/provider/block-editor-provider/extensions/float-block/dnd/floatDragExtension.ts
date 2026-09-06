@@ -18,14 +18,38 @@ const getDragIndicator = () => {
   return el;
 };
 
+const getIndicatorY = (
+  blockDOM: HTMLElement,
+  rect: DOMRect,
+  above: boolean,
+  GAP: number,
+  LINE: number,
+) => {
+  const sibling = (
+    above ? blockDOM.previousElementSibling : blockDOM.nextElementSibling
+  ) as HTMLElement | null;
+
+  if (sibling) {
+    const siblingRect = sibling.getBoundingClientRect();
+    const gapTop = above ? siblingRect.bottom : rect.bottom;
+    const gapBottom = above ? rect.top : siblingRect.top;
+
+    if (gapBottom > gapTop) {
+      return (gapTop + gapBottom) / 2 - LINE / 2;
+    }
+  }
+
+  return above ? rect.top - GAP - LINE : rect.bottom + GAP;
+};
+
 const hideDragIndicator = () => {
   const el = document.getElementById("tiptap-drag-indicator");
   if (el) el.style.opacity = "0";
 };
 
-export function syncAlignAttrs(view: EditorView) {
+export const syncAlignAttrs = (view: EditorView) => {
   (view.dom as HTMLElement)
-    .querySelectorAll<HTMLElement>(".react-renderer[data-float-block]")
+    .querySelectorAll<HTMLElement>(".react-renderer.float-block")
     .forEach((wrapper) => {
       let raw: number;
       try {
@@ -34,26 +58,21 @@ export function syncAlignAttrs(view: EditorView) {
         return;
       }
       if (raw < 0) return;
+
       const $pos = view.state.doc.resolve(raw);
-      for (let d = $pos.depth; d >= 1; d--) {
-        const pName = $pos.node(d - 1).type.name;
-        if (pName === "doc" || pName === "column") {
-          const node = view.state.doc.nodeAt($pos.before(d));
-          if (!node || !node.type.isInGroup("floatBlock")) break;
+      const node = $pos.node($pos.depth);
 
-          const align: string = node.attrs.align ?? "center";
-          if (wrapper.dataset.align !== align) wrapper.dataset.align = align;
+      if (!node || !node.type.isInGroup("floatBlock")) return;
 
-          break;
-        }
-      }
+      const align: string = node.attrs.align ?? "center";
+      if (wrapper.dataset.align !== align) wrapper.dataset.align = align;
     });
-}
+};
 
-function findBlockDOM(
+const findBlockDOM = (
   element: HTMLElement,
   editorDOM: HTMLElement,
-): HTMLElement | null {
+): HTMLElement | null => {
   let el: HTMLElement | null = element;
   while (el && el !== editorDOM) {
     const parent: HTMLElement | null = el.parentElement;
@@ -69,14 +88,14 @@ function findBlockDOM(
     el = parent;
   }
   return null;
-}
+};
 
-function getBlockDOMAtCoords(
+const getBlockDOMAtCoords = (
   view: EditorView,
   x: number,
   y: number,
   skip: HTMLElement | null,
-): HTMLElement | null {
+): HTMLElement | null => {
   const editorDOM = view.dom as HTMLElement;
 
   const coord = view.posAtCoords({ left: x, top: y });
@@ -108,12 +127,12 @@ function getBlockDOMAtCoords(
     if (block) return block;
   }
   return null;
-}
+};
 
-function blockPosFromDOM(
+const blockPosFromDOM = (
   view: EditorView,
   blockDOM: HTMLElement,
-): number | null {
+): number | null => {
   let raw: number;
   try {
     raw = view.posAtDOM(blockDOM, 0);
@@ -127,14 +146,14 @@ function blockPosFromDOM(
     if (pName === "doc" || pName === "column") return $pos.before(d);
   }
   return $pos.before(1);
-}
+};
 
-function updateIndicator(
+const updateIndicator = (
   _: EditorView,
   blockDOM: HTMLElement,
   x: number,
   y: number,
-) {
+) => {
   const rect = blockDOM.getBoundingClientRect();
   const relX = x - rect.left;
   const midY = rect.top + rect.height / 2;
@@ -156,7 +175,11 @@ function updateIndicator(
       width: `${rect.width}px`,
       height: `${LINE}px`,
       opacity: "1",
-      top: y < midY ? `${rect.top - GAP - LINE}px` : `${rect.bottom + GAP}px`,
+      top: `${
+        y < midY
+          ? getIndicatorY(blockDOM, rect, true, GAP, LINE)
+          : getIndicatorY(blockDOM, rect, false, GAP, LINE)
+      }px`,
     });
   } else {
     const ZONE = Math.min(rect.width * 0.25, 80);
@@ -182,11 +205,15 @@ function updateIndicator(
         width: `${rect.width}px`,
         height: `${LINE}px`,
         opacity: "1",
-        top: y < midY ? `${rect.top - GAP - LINE}px` : `${rect.bottom + GAP}px`,
+        top: `${
+          y < midY
+            ? getIndicatorY(blockDOM, rect, true, GAP, LINE)
+            : getIndicatorY(blockDOM, rect, false, GAP, LINE)
+        }px`,
       });
     }
   }
-}
+};
 
 export const FloatDragExtension = Extension.create({
   name: "floatDrag",
@@ -247,47 +274,37 @@ export const FloatDragExtension = Extension.create({
           handleDOMEvents: {
             dragstart(view, event) {
               const target = event.target as HTMLElement | null;
+
               if (target) {
-                let el: HTMLElement | null = target;
-                while (el && el !== view.dom) {
-                  const parent: HTMLElement | null = el.parentElement;
-                  if (!parent) break;
-                  if (
-                    el.classList.contains("react-renderer") &&
-                    el.hasAttribute("data-float-block") &&
-                    (parent === view.dom ||
-                      parent.getAttribute("data-type") === "column")
-                  ) {
-                    let raw: number;
-                    try {
-                      raw = view.posAtDOM(el, 0);
-                    } catch {
-                      break;
-                    }
-                    if (raw >= 0) {
-                      const $pos = view.state.doc.resolve(raw);
-                      for (let d = $pos.depth; d >= 1; d--) {
-                        const pName = $pos.node(d - 1).type.name;
-                        if (pName === "doc" || pName === "column") {
-                          const blockPos = $pos.before(d);
-                          const node = view.state.doc.nodeAt(blockPos);
-                          if (node) {
-                            dragSource = {
-                              pos: blockPos,
-                              size: node.nodeSize,
-                              dom: el,
-                            };
-                            return false;
-                          }
-                          break;
-                        }
-                      }
-                    }
-                    break;
+                const wrapper = target.closest<HTMLElement>(
+                  ".react-renderer.float-block",
+                );
+
+                if (wrapper && view.dom.contains(wrapper)) {
+                  let raw: number;
+                  try {
+                    raw = view.posAtDOM(wrapper, 0);
+                  } catch {
+                    raw = -1;
                   }
-                  el = parent;
+
+                  if (raw >= 0) {
+                    const $pos = view.state.doc.resolve(raw);
+                    const node = $pos.node($pos.depth); // node trực tiếp sở hữu wrapper này, dù lồng bao sâu
+
+                    if (node && node.type.isInGroup("floatBlock")) {
+                      const blockPos = $pos.before($pos.depth);
+                      dragSource = {
+                        pos: blockPos,
+                        size: node.nodeSize,
+                        dom: wrapper,
+                      };
+                      return false;
+                    }
+                  }
                 }
               }
+
               const { selection } = view.state;
               if (selection instanceof NodeSelection) {
                 dragSource = {

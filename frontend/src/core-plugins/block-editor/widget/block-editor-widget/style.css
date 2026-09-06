@@ -1,16 +1,15 @@
 @import url(../../provider/block-editor-provider/extensions/extensions.css);
 
 .tiptap p.is-empty::before {
+  content: none; 
+}
+
+.tiptap p.is-empty.focus::before {
   content: attr(data-placeholder);
   float: left;
   color: #adb5bd;
   pointer-events: none;
   height: 0;
-  opacity: 0; 
-}
-
-.tiptap.ProseMirror-focused p.is-empty::before {
-  opacity: 1;
 }
 
 .ProseMirror::after,

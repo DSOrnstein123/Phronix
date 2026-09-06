@@ -2,7 +2,7 @@ div[data-type="column"] {
   display: flow-root !important;
 }
 
-.ProseMirror .react-renderer[data-float-block][data-align="left"] {
+.ProseMirror .react-renderer.float-block[data-align="left"] {
   float: left !important;
   width: 48% !important;
   margin-right: 4% !important;
@@ -10,7 +10,7 @@ div[data-type="column"] {
   clear: none !important;
 }
 
-.ProseMirror .react-renderer[data-float-block][data-align="right"] {
+.ProseMirror .react-renderer.float-block[data-align="right"] {
   float: right !important;
   width: 48% !important;
   margin-left: 4% !important;
@@ -18,7 +18,7 @@ div[data-type="column"] {
   clear: none !important;
 }
 
-.ProseMirror .react-renderer[data-float-block][data-align="center"] {
+.ProseMirror .react-renderer.float-block[data-align="center"] {
   float: none !important;
   width: 100% !important;
   clear: both !important;
@@ -32,6 +32,6 @@ div[data-type="column"] p {
   min-height: 1.5em;
 }
 
-.ProseMirror > *:not(p):not(.react-renderer[data-float-block][data-align="left"]):not(.react-renderer[data-float-block][data-align="right"]) {
+.ProseMirror > *:not(p):not(.react-renderer.float-block[data-align="left"]):not(.react-renderer.float-block[data-align="right"]) {
   clear: both;
 }

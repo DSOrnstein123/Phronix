@@ -11,8 +11,7 @@ export const FloatBlockWrapper = ({
 }) => {
   return (
     <NodeViewWrapper
-      data-float-block
-      className={`group relative w-full rounded-sm p-4 transition-all ${className}`}
+      className={`${className} group relative w-full rounded-sm p-4 transition-all`}
     >
       <div
         contentEditable={false}

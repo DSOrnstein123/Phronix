@@ -14,7 +14,7 @@ interface SlashSuggestionOptions {
 }
 
 //TODO: add key event (key down, key up)
-const SlashCommandExtension = Extension.create<SlashSuggestionOptions>({
+export const SlashCommand = Extension.create<SlashSuggestionOptions>({
   name: "slashCommands",
 
   addOptions: () => {
@@ -106,5 +106,3 @@ const SlashCommandExtension = Extension.create<SlashSuggestionOptions>({
     ];
   },
 });
-
-export default SlashCommandExtension;

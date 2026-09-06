@@ -1,7 +1,6 @@
 import { StarterKit, Placeholder } from "@system/lib/tiptap";
 import CustomLink from "./custom-link/customLink";
-import SlashCommandExtension from "./slash-command/slashCommands";
-import { Callout } from "./callout/contentBlock";
+import { SlashCommand } from "./slash-command/slashCommands";
 import { FloatDragExtension } from "./float-block/dnd/floatDragExtension";
 import { Column } from "./column/column";
 import { ColumnContainer } from "./column/columnContainer";
@@ -9,6 +8,9 @@ import { CustomCodeBlock } from "./custom-code-block/CustomCodeBlock";
 import { createLowlight, all } from "lowlight";
 import { extensionRegistry } from "../extensionRegistry";
 import { SemanticHighlight } from "./semantic-highlight/semanticHighlight";
+import { Focus } from "@tiptap/extensions";
+import { FloatBlockAttributes } from "./float-block/FloatingBlockAttributes";
+import { Callout } from "./callout/Callout";
 
 const lowlight = createLowlight(all);
 
@@ -21,14 +23,23 @@ export const richTextEditorExtensions = [
   CustomLink.configure({
     openOnClick: false,
   }),
-  SlashCommandExtension,
+  SlashCommand,
   Placeholder.configure({
+    includeChildren: true,
     showOnlyCurrent: true,
-    placeholder: () => {
-      return "Press '/' for commands";
+
+    placeholder: ({ node }) => {
+      if (node.type.name === "paragraph") {
+        return "Press '/' for commands";
+      }
+
+      return "";
     },
   }),
-  FloatDragExtension,
+  Focus.configure({
+    className: "focus",
+    mode: "deepest",
+  }),
   Callout,
   Column,
   ColumnContainer,
@@ -38,5 +49,7 @@ export const richTextEditorExtensions = [
     tabSize: 2,
   }),
   SemanticHighlight,
+  FloatDragExtension,
+  FloatBlockAttributes,
   ...extensionRegistry.getAllExtensions(),
 ];

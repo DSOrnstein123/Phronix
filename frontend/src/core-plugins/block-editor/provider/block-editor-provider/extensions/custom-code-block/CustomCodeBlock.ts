@@ -1,10 +1,12 @@
-import { ReactNodeViewRenderer, CodeBlockLowlight } from "@system/lib/tiptap";
-import CodeBlockView from "./CodeBlockView";
+import { CodeBlockLowlight } from "@system/lib/tiptap";
+import { View } from "./View";
+import { floatBlockConfig } from "../float-block/floatBlockConfig";
+import { ReactFloatBlockViewRenderer } from "../float-block/ReactFloatBlockViewRenderer";
 
 export const CustomCodeBlock = CodeBlockLowlight.extend({
-  draggable: true,
+  ...floatBlockConfig,
 
   addNodeView() {
-    return ReactNodeViewRenderer(CodeBlockView);
+    return ReactFloatBlockViewRenderer(View);
   },
 });

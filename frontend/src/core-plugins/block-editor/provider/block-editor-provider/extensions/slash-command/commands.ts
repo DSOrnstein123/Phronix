@@ -90,6 +90,11 @@ const commands: CommandItemProps[] = [
         .deleteRange(range)
         .insertContent({
           type: "callout",
+          content: [
+            {
+              type: "paragraph",
+            },
+          ],
         })
         .run();
     },

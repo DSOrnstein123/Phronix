@@ -4,6 +4,6 @@
 @import url(./custom-link/link.css);
 @import url(./float-block/dnd/dnd.css);
 
-.ProseMirror p + p {
+.ProseMirror > * + * {
   margin-top: 14px;
 }
