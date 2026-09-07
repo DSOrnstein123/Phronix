@@ -115,6 +115,15 @@ const getBlockDOMAtCoords = (
           if (!dom.parentElement) break;
           dom = dom.parentElement;
         }
+
+        if (dom.classList.contains("float-block")) {
+          const rect = dom.getBoundingClientRect();
+          if (y > rect.bottom) {
+            dom = null;
+          }
+        }
+
+        if (!dom) break;
         if (skip && (dom === skip || skip.contains(dom))) break;
         return dom;
       }
@@ -124,7 +133,13 @@ const getBlockDOMAtCoords = (
   for (const el of document.elementsFromPoint(x, y) as HTMLElement[]) {
     if (skip && (el === skip || skip.contains(el))) continue;
     const block = findBlockDOM(el, editorDOM);
-    if (block) return block;
+    if (block) {
+      if (block.classList.contains("float-block")) {
+        const rect = block.getBoundingClientRect();
+        if (y > rect.bottom) continue;
+      }
+      return block;
+    }
   }
   return null;
 };
@@ -169,6 +184,8 @@ const updateIndicator = (
         "column-container-wrapper",
       ));
 
+  const targetIsFloatBlock = blockDOM.classList.contains("float-block");
+
   if (isContainerOrColumn) {
     Object.assign(ind.style, {
       left: `${rect.left}px`,
@@ -183,7 +200,8 @@ const updateIndicator = (
     });
   } else {
     const ZONE = Math.min(rect.width * 0.25, 80);
-    if (relX < ZONE) {
+
+    if (targetIsFloatBlock && relX < ZONE) {
       Object.assign(ind.style, {
         left: `${rect.left - GAP - LINE}px`,
         top: `${rect.top}px`,
@@ -191,7 +209,7 @@ const updateIndicator = (
         height: `${rect.height}px`,
         opacity: "1",
       });
-    } else if (relX > rect.width - ZONE) {
+    } else if (targetIsFloatBlock && relX > rect.width - ZONE) {
       Object.assign(ind.style, {
         left: `${rect.right + GAP}px`,
         top: `${rect.top}px`,
@@ -290,7 +308,7 @@ export const FloatDragExtension = Extension.create({
 
                   if (raw >= 0) {
                     const $pos = view.state.doc.resolve(raw);
-                    const node = $pos.node($pos.depth); // node trực tiếp sở hữu wrapper này, dù lồng bao sâu
+                    const node = $pos.node($pos.depth);
 
                     if (node && node.type.isInGroup("floatBlock")) {
                       const blockPos = $pos.before($pos.depth);
@@ -351,15 +369,29 @@ export const FloatDragExtension = Extension.create({
                     "column-container-wrapper",
                   ));
 
-              const ZONE = Math.min(rect.width * 0.25, 80);
-              let align = "center";
-              if (!isColumn && !isContainer) {
-                if (relX < ZONE) align = "left";
-                else if (relX > rect.width - ZONE) align = "right";
-              }
-
               const targetBlockPos = blockPosFromDOM(view, blockDOM);
               if (targetBlockPos === null) return false;
+
+              const targetIsFloatBlock =
+                blockDOM.classList.contains("float-block");
+
+              const ZONE = Math.min(rect.width * 0.25, 80);
+              let align = "center";
+              let isSideDrop = false;
+
+              if (!isColumn && !isContainer && targetIsFloatBlock) {
+                if (relX < ZONE) {
+                  align = "left";
+                  isSideDrop = true;
+                } else if (relX > rect.width - ZONE) {
+                  align = "right";
+                  isSideDrop = true;
+                } else {
+                  const targetNode = state.doc.nodeAt(targetBlockPos);
+                  align = (targetNode?.attrs.align as string) ?? "center";
+                  isSideDrop = false;
+                }
+              }
 
               event.preventDefault();
 
@@ -375,7 +407,7 @@ export const FloatDragExtension = Extension.create({
                 while (d > 0 && $i.node(d).type.name !== "column-container")
                   d--;
                 targetPos = event.clientY < midY ? $i.before(d) : $i.after(d);
-              } else if (align === "left" || align === "right") {
+              } else if (isSideDrop) {
                 targetPos = targetBlockPos;
               } else {
                 const targetNode = state.doc.nodeAt(targetBlockPos);
