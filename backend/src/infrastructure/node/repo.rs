@@ -1,6 +1,7 @@
 use crate::domain::errors::node::NodeError;
 use crate::domain::models::icon::IconData;
 use crate::domain::models::node::{Node, NodeDetail, NodeFilterOptions, NodeMetadata};
+use crate::domain::ports::node_link_repository::NodeLinkRepository;
 use crate::domain::ports::node_repository::NodeRepository;
 use crate::infrastructure::node::models::{DbNodeDetail, DbNodeMetadata, TemplateData};
 use async_trait::async_trait;
@@ -323,5 +324,39 @@ impl NodeRepository for SqliteNodeRepository {
             .map_err(|error| NodeError::Database(error.to_string()))?;
 
         Ok(result.into())
+    }
+}
+
+#[async_trait]
+impl NodeLinkRepository for SqliteNodeRepository {
+    async fn get_forward_links(&self, id: &str) -> Result<Vec<NodeMetadata>, NodeError> {
+        let db_links = query_as!(
+            DbNodeMetadata,
+            r#"
+              SELECT
+                id as "id!: String",
+                parent_id,
+                icon as "icon: Json<IconData>",
+                name,
+                kind,
+                type as node_type,
+                created_at,
+                updated_at,
+                is_trashed
+              FROM nodes n
+              JOIN node_links nl
+              ON nl.source_node_id = n.id
+              WHERE nl.source_node_id = ? AND is_trashed = 0
+            "#,
+            id
+        )
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| match e {
+            sqlx::Error::RowNotFound => NodeError::NotFound(id.to_string()),
+            e => NodeError::Database(e.to_string()),
+        })?;
+
+        Ok(db_links.into_iter().map(Into::into).collect())
     }
 }
