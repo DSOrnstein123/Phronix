@@ -7,7 +7,7 @@ use crate::infrastructure::node::models::{DbNodeDetail, DbNodeMetadata, Template
 use async_trait::async_trait;
 use serde_json::Value;
 use sqlx::types::Json;
-use sqlx::{QueryBuilder, Sqlite, SqlitePool, query, query_as};
+use sqlx::{Executor, QueryBuilder, Sqlite, SqlitePool, query, query_as};
 // TODO: split into new file
 pub struct SqliteNodeRepository {
     pub pool: SqlitePool,
@@ -168,6 +168,38 @@ impl NodeRepository for SqliteNodeRepository {
             .map_err(|e| NodeError::Database(e.to_string()))?;
 
         Ok(nodes.into_iter().map(Into::into).collect())
+    }
+
+    async fn get_metadata<'e, E>(&self, executor: E, id: &str) -> Result<NodeMetadata, NodeError>
+    where
+        E: Executor<'e, Database = sqlx::Sqlite>,
+    {
+        let db_node = query_as!(
+            DbNodeMetadata,
+            r#"
+              SELECT 
+                id as "id!: String",
+                parent_id,
+                icon as "icon: Json<IconData>",
+                name,
+                kind,
+                type as node_type,
+                created_at,
+                updated_at,
+                is_trashed
+              FROM nodes
+              WHERE id = ? AND is_trashed = 0
+            "#,
+            id
+        )
+        .fetch_one(executor)
+        .await
+        .map_err(|e| match e {
+            sqlx::Error::RowNotFound => NodeError::NotFound(id.to_string()),
+            e => NodeError::Database(e.to_string()),
+        })?;
+
+        Ok(db_node.into())
     }
 
     async fn create(&self, node: &Node) -> Result<NodeDetail, NodeError> {
@@ -345,7 +377,7 @@ impl NodeLinkRepository for SqliteNodeRepository {
                 is_trashed
               FROM nodes n
               JOIN node_links nl
-              ON nl.source_node_id = n.id
+              ON nl.target_node_id = n.id
               WHERE nl.source_node_id = ? AND is_trashed = 0
             "#,
             id
@@ -358,5 +390,37 @@ impl NodeLinkRepository for SqliteNodeRepository {
         })?;
 
         Ok(db_links.into_iter().map(Into::into).collect())
+    }
+
+    async fn create(
+        &self,
+        source_node_id: &str,
+        target_node_id: &str,
+    ) -> Result<NodeMetadata, NodeError> {
+        let mut tx = self
+            .pool
+            .begin()
+            .await
+            .map_err(|error| NodeError::Database(error.to_string()))?;
+
+        query!(
+            r"
+            INSERT INTO node_links (source_node_id, target_node_id) VALUES (?, ?)
+        ",
+            source_node_id,
+            target_node_id
+        )
+        .execute(&mut *tx)
+        .await
+        // TODO: fix error log
+        .map_err(|e| NodeError::Database(e.to_string()))?;
+
+        let db_node = self.get_metadata(&mut *tx, target_node_id).await?;
+
+        tx.commit()
+            .await
+            .map_err(|e| NodeError::Database(e.to_string()))?;
+
+        Ok(db_node.into())
     }
 }

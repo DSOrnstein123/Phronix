@@ -4,6 +4,7 @@ use crate::domain::{
 };
 use async_trait::async_trait;
 use serde_json::Value;
+use sqlx::Executor;
 
 #[async_trait]
 pub trait NodeRepository: Send + Sync {
@@ -13,6 +14,9 @@ pub trait NodeRepository: Send + Sync {
     ) -> Result<Vec<NodeMetadata>, NodeError>;
     async fn get_detail(&self, id: &str) -> Result<NodeDetail, NodeError>;
     async fn get_details_by_ids(&self, ids: &[String]) -> Result<Vec<NodeDetail>, NodeError>;
+    async fn get_metadata<'e, E>(&self, executor: E, id: &str) -> Result<NodeMetadata, NodeError>
+    where
+        E: Executor<'e, Database = sqlx::Sqlite>;
     async fn create(&self, node: &Node) -> Result<NodeDetail, NodeError>;
     async fn update_name(&self, id: &str, new_name: &str) -> Result<(), NodeError>;
     async fn update_data(&self, id: &str, new_data: Value) -> Result<(), NodeError>;
