@@ -7,7 +7,7 @@ use crate::infrastructure::node::models::{DbNodeDetail, DbNodeMetadata, Template
 use async_trait::async_trait;
 use serde_json::Value;
 use sqlx::types::Json;
-use sqlx::{Executor, QueryBuilder, Sqlite, SqlitePool, query, query_as};
+use sqlx::{QueryBuilder, Sqlite, SqlitePool, query, query_as};
 // TODO: split into new file
 pub struct SqliteNodeRepository {
     pub pool: SqlitePool,
@@ -170,10 +170,7 @@ impl NodeRepository for SqliteNodeRepository {
         Ok(nodes.into_iter().map(Into::into).collect())
     }
 
-    async fn get_metadata<'e, E>(&self, executor: E, id: &str) -> Result<NodeMetadata, NodeError>
-    where
-        E: Executor<'e, Database = sqlx::Sqlite>,
-    {
+    async fn get_metadata(&self, id: &str) -> Result<NodeMetadata, NodeError> {
         let db_node = query_as!(
             DbNodeMetadata,
             r#"
@@ -192,7 +189,7 @@ impl NodeRepository for SqliteNodeRepository {
             "#,
             id
         )
-        .fetch_one(executor)
+        .fetch_one(&self.pool)
         .await
         .map_err(|e| match e {
             sqlx::Error::RowNotFound => NodeError::NotFound(id.to_string()),
@@ -392,35 +389,19 @@ impl NodeLinkRepository for SqliteNodeRepository {
         Ok(db_links.into_iter().map(Into::into).collect())
     }
 
-    async fn create(
-        &self,
-        source_node_id: &str,
-        target_node_id: &str,
-    ) -> Result<NodeMetadata, NodeError> {
-        let mut tx = self
-            .pool
-            .begin()
-            .await
-            .map_err(|error| NodeError::Database(error.to_string()))?;
-
+    async fn create(&self, source_node_id: &str, target_node_id: &str) -> Result<(), NodeError> {
         query!(
             r"
-            INSERT INTO node_links (source_node_id, target_node_id) VALUES (?, ?)
-        ",
+                INSERT INTO node_links (source_node_id, target_node_id) VALUES (?, ?)
+            ",
             source_node_id,
             target_node_id
         )
-        .execute(&mut *tx)
+        .execute(&self.pool)
         .await
         // TODO: fix error log
         .map_err(|e| NodeError::Database(e.to_string()))?;
 
-        let db_node = self.get_metadata(&mut *tx, target_node_id).await?;
-
-        tx.commit()
-            .await
-            .map_err(|e| NodeError::Database(e.to_string()))?;
-
-        Ok(db_node.into())
+        Ok(())
     }
 }

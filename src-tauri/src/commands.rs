@@ -2,6 +2,7 @@
 pub mod document;
 pub mod flashcard;
 pub mod node;
+pub mod node_link;
 
 #[macro_export]
 macro_rules! app_commands {
