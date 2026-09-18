@@ -11,6 +11,7 @@ macro_rules! app_commands {
         use $crate::commands::document::cmd as docucment;
         use $crate::commands::flashcard::deck;
         use $crate::commands::node;
+        use $crate::commands::node_link;
 
         tauri::generate_handler![
             //core/node
@@ -21,6 +22,8 @@ macro_rules! app_commands {
             node::update_node_name,
             node::update_node_data,
             node::apply_template,
+            // node_link
+            node_link::create_link_with_metadata,
             // flashcard
             deck::get_decks,
             deck::get_cards_from_deck,

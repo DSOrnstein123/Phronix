@@ -1,21 +1,19 @@
-use crate::domain::{
-    errors::node::NodeError, models::node::NodeDetail, ports::node_repository::NodeRepository,
-};
+use crate::domain::{errors::node::NodeError, ports::node_link_repository::NodeLinkRepository};
 
-pub struct ApplyTemplateUseCase<'a, R: NodeRepository> {
+pub struct CreateNodeLinkUseCase<'a, R: NodeLinkRepository> {
     repo: &'a R,
 }
 
-impl<'a, R: NodeRepository> ApplyTemplateUseCase<'a, R> {
+impl<'a, R: NodeLinkRepository> CreateNodeLinkUseCase<'a, R> {
     pub fn new(repo: &'a R) -> Self {
         Self { repo: repo }
     }
 
     pub async fn execute(
         &self,
-        template_id: &str,
-        target_id: &str,
-    ) -> Result<NodeDetail, NodeError> {
-        self.repo.apply_template(template_id, target_id).await
+        source_node_id: &str,
+        target_node_id: &str,
+    ) -> Result<(), NodeError> {
+        self.repo.create(source_node_id, target_node_id).await
     }
 }

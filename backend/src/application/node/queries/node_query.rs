@@ -25,4 +25,8 @@ impl<'a, R: NodeRepository> NodeQuery<'a, R> {
     pub async fn get_details_by_ids(&self, ids: &[String]) -> Result<Vec<NodeDetail>, NodeError> {
         self.repo.get_details_by_ids(ids).await
     }
+
+    pub async fn get_node_metadata(&self, id: &str) -> Result<NodeMetadata, NodeError> {
+        self.repo.get_metadata(id).await
+    }
 }
