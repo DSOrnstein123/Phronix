@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { nodeKeys } from "../../../../../entry/categories/node/core/keys";
+import { nodeKeys } from "../../keys";
 import { nodeService } from "../service";
 
 const useNodeName = (id: string) => {

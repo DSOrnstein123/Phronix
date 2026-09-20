@@ -1,4 +1,4 @@
-import { nodeKeys } from "@system/entry/categories/node/core/keys";
+import { nodeKeys } from "@system/entry/categories/node/keys";
 import { nodeService } from "@system/entry/categories/node/core/service";
 import { queryClient } from "@system/config/queryClient";
 import { DEFAULT_DOCUMENT_VALUES } from "../constants";

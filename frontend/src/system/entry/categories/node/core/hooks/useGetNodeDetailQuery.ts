@@ -1,5 +1,5 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
-import { nodeKeys } from "../../../../../entry/categories/node/core/keys";
+import { nodeKeys } from "../../keys";
 import { nodeService } from "../service";
 import type { NodeType } from "@system/plugin-manager/plugin";
 import type { NodeDetailMap } from "@system/entry/categories/node/core/types";

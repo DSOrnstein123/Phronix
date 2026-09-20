@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { nodeService } from "@system/entry/categories/node/core/service";
 import useCurrentNodeId from "@system/workbench/tab/hooks/useCurrentNodeId";
-import { nodeKeys } from "@system/entry/categories/node/core/keys";
+import { nodeKeys } from "@system/entry/categories/node/keys";
 import { TEMPLATE_CONFIG } from "../../../../../template-manager/constants";
 import useOptimisticRename from "@system/shared/hooks/useOptimisticRename";
 import useGetCurrentNameQuery from "./useGetCurrentNameQuery";

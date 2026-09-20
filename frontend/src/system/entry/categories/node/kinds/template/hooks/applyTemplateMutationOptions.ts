@@ -2,7 +2,7 @@ import { mutationOptions } from "@tanstack/react-query";
 import { systemApi } from "@system/api";
 import type { NodeType } from "@system/plugin-manager/plugin";
 import { queryClient } from "@system/config/queryClient";
-import { nodeKeys } from "../../../core/keys";
+import { nodeKeys } from "../../../keys";
 import type { ApplyTemplatePayload } from "../types/applyTemplatePayload";
 
 export const applyTemplateMutationOptions = <N extends NodeType>() =>

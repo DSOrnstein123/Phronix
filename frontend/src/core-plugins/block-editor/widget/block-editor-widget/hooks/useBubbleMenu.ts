@@ -1,4 +1,3 @@
-import type { NodeMetadata } from "@system/entry/categories/node/core/schema";
 import type { BubbleMenuAction } from "../types";
 import {
   Bold,
@@ -28,14 +27,13 @@ const useBubbleMenu = (editor: Editor) => {
       }),
     });
 
-  const handleSelect = (nodeMetadata: NodeMetadata) => {
+  const handleSelect = (targetNodeId: string) => {
     editor
       .chain()
       .focus()
       .setMark("link", {
-        href: `/documents/${nodeMetadata}`,
-        "data-type": "note",
-        "data-document-id": nodeMetadata,
+        href: `/node/${targetNodeId}`,
+        "data-node-id": targetNodeId,
       })
       .run();
 

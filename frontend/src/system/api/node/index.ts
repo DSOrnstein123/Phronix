@@ -1,4 +1,4 @@
-import { nodeKeys } from "@system/entry/categories/node/core/keys";
+import { nodeKeys } from "@system/entry/categories/node/keys";
 import type { NodeDetailMap } from "@system/entry/categories/node/core/types";
 import type { NodeType } from "@system/plugin-manager/plugin";
 import { templateApi } from "./template";

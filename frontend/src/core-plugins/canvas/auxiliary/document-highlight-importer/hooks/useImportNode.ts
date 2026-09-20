@@ -1,4 +1,4 @@
-import { nodeKeys } from "@system/entry/categories/node/core/keys";
+import { nodeKeys } from "@system/entry/categories/node/keys";
 import { nodeService } from "@system/entry/categories/node/core/service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 

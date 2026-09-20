@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { nodeKeys } from "../keys";
+import { nodeKeys } from "../../keys";
 import { nodeService } from "../service";
 
 export const useGetDetailsQuery = (ids: string[]) => {

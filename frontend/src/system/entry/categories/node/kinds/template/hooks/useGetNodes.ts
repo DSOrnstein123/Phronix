@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { nodeService } from "../../../core/service";
 import type { NodeListOptions } from "../../../core/types/payload";
 import type { NodeMetadataList } from "../../../core/schema";
-import { nodeKeys } from "../../../core/keys";
+import { nodeKeys } from "../../../keys";
 
 export const useGetNodes = <N extends NodeMetadataList>(
   options: NodeListOptions = {},

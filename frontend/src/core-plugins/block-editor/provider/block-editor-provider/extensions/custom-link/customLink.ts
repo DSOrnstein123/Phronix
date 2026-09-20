@@ -5,20 +5,12 @@ const CustomLink = Link.extend({
     return {
       ...this.parent?.(),
 
-      "data-type": {
+      "data-node-id": {
         default: null,
-        parseHTML: (element) => element.getAttribute("data-type"),
+        parseHTML: (element) => element.getAttribute("data-node-id"),
         renderHTML: (attributes) => {
-          if (!attributes["data-type"]) return {};
-          return { "data-type": attributes["data-type"] };
-        },
-      },
-      "data-document-id": {
-        default: null,
-        parseHTML: (element) => element.getAttribute("data-document-id"),
-        renderHTML: (attributes) => {
-          if (!attributes["data-document-id"]) return {};
-          return { "data-document-id": attributes["data-document-id"] };
+          if (!attributes["data-node-id"]) return {};
+          return { "data-node-id": attributes["data-node-id"] };
         },
       },
     };

@@ -14,7 +14,8 @@ export interface AuxiliaryConfig {
 
 export interface SegmentConfig {
   id: string;
-  name: string;
+  name?: string;
+  //TODO: remove "?" later
   icon?: IconData;
   view: ComponentType;
   createController?: () => BaseController;

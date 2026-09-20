@@ -1,6 +1,9 @@
 import { Editor } from "@system/lib/tiptap";
 import type { EditorStore } from "./store";
 import { NodeStoreController } from "@system/entry/categories/node/core/controller";
+import { nodeLinkService } from "@system/entry/categories/node/link/service";
+import { queryClient } from "@system/config/queryClient";
+import { nodeKeys } from "@system/entry/categories/node/keys";
 
 export class EditorController extends NodeStoreController<EditorStore> {
   private editor: Editor | null = null;
@@ -16,6 +19,7 @@ export class EditorController extends NodeStoreController<EditorStore> {
       getEditor: this.getEditor.bind(this),
       setEditor: this.setEditor.bind(this),
       subcribeEditor: this.subcribeEditor.bind(this),
+      createNodeLink: this.createNodeLink.bind(this),
     };
   }
 
@@ -35,6 +39,14 @@ export class EditorController extends NodeStoreController<EditorStore> {
     return () => {
       this.listeners.delete(listener);
     };
+  }
+
+  async createNodeLink(sourceNodeId: string, targetNodeId: string) {
+    await nodeLinkService.createLinkWithMetadata(sourceNodeId, targetNodeId);
+
+    queryClient.invalidateQueries({
+      queryKey: nodeKeys.links(),
+    });
   }
 
   override destroy() {
