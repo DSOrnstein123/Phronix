@@ -1,7 +1,7 @@
 use backend::{
     application::node::{
         dtos::CreateNodeInput,
-        queries::node_query::NodeQuery,
+        queries::NodeQuery,
         use_cases::{
             apply_template::ApplyTemplateUseCase, create_node::CreateNodeUseCase,
             update_node_data::UpdateNodeDataUseCase, update_node_name::UpdateNodeNameUseCase,

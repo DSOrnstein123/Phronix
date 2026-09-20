@@ -23,6 +23,7 @@ macro_rules! app_commands {
             node::update_node_data,
             node::apply_template,
             // node_link
+            node_link::get_forward_links,
             node_link::create_link_with_metadata,
             // flashcard
             deck::get_decks,

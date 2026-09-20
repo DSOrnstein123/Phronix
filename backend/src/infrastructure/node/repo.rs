@@ -392,7 +392,7 @@ impl NodeLinkRepository for SqliteNodeRepository {
     async fn create(&self, source_node_id: &str, target_node_id: &str) -> Result<(), NodeError> {
         query!(
             r"
-                INSERT INTO node_links (source_node_id, target_node_id) VALUES (?, ?)
+                INSERT OR IGNORE INTO node_links (source_node_id, target_node_id) VALUES (?, ?)
             ",
             source_node_id,
             target_node_id
