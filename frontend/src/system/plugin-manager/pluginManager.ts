@@ -19,6 +19,10 @@ import type {
   PluginConfig,
 } from "./plugin";
 import type { ToolConfig } from "./tool";
+import {
+  FORWARD_LINK_SEGMENT_ID,
+  forwardLinkConfig,
+} from "@system/entry/categories/node/segment/forward-link";
 
 type ExtractPluginApi<P extends PluginId> = PluginRegistryMap[P] extends {
   api: infer A;
@@ -30,7 +34,9 @@ export class PluginManager {
   private pluginConfigs = new Map<PluginId, PluginConfig>();
   private nodeConfigs = new Map<NodeType, RegisteredNodeConfig>();
   private toolConfigs = new Map<ToolType, ToolConfig>();
-  private segmentConfigs = new Map<SegmentId, SegmentConfig>();
+  private segmentConfigs = new Map<SegmentId, SegmentConfig>([
+    [FORWARD_LINK_SEGMENT_ID, forwardLinkConfig],
+  ]);
 
   register(plugin: Plugin) {
     //TODO: normalize registerd plugin
@@ -61,6 +67,13 @@ export class PluginManager {
           namePlaceholder: "Untitled",
           ...nodeConfig,
           kind: nodeConfig.kind ?? "file",
+          auxiliary: {
+            ...nodeConfig.auxiliary,
+            segments: [
+              ...(nodeConfig.auxiliary?.segments ?? []),
+              FORWARD_LINK_SEGMENT_ID,
+            ],
+          },
         });
       });
     }

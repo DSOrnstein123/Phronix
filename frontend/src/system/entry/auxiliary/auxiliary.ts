@@ -6,6 +6,7 @@ import type { IconData } from "@system/shared/schemas/iconData";
 import type { BaseController } from "@system/workbench/tab/classes/baseController";
 import type { ComponentType } from "react";
 import type { StoreApi } from "zustand";
+import type { FORWARD_HIGHLIGHT_SEGMENT_ID } from "../categories/node/segment/forward-link";
 
 export interface AuxiliaryConfig {
   icon?: IconData;
@@ -31,6 +32,10 @@ type ExtractSegmentId<T> = T extends {
     : never
   : never;
 
-export type SegmentId = {
-  [P in PluginId]: ExtractSegmentId<PluginRegistryMap[P]>;
-}[PluginId];
+type DefaultSegment = FORWARD_HIGHLIGHT_SEGMENT_ID;
+
+export type SegmentId =
+  | {
+      [P in PluginId]: ExtractSegmentId<PluginRegistryMap[P]>;
+    }[PluginId]
+  | DefaultSegment;

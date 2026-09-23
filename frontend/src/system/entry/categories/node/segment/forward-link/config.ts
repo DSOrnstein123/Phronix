@@ -5,4 +5,5 @@ import { View } from "./View";
 export const config = {
   id: SEGMENT_ID,
   view: View,
+  name: "forward",
 } satisfies SegmentConfig;
