@@ -23,6 +23,10 @@ import {
   FORWARD_LINK_SEGMENT_ID,
   forwardLinkConfig,
 } from "@system/entry/categories/node/segment/forward-link";
+import {
+  BACKLINK_SEGMENT_ID,
+  backlinkConfig,
+} from "@system/entry/categories/node/segment/backlink";
 
 type ExtractPluginApi<P extends PluginId> = PluginRegistryMap[P] extends {
   api: infer A;
@@ -36,6 +40,7 @@ export class PluginManager {
   private toolConfigs = new Map<ToolType, ToolConfig>();
   private segmentConfigs = new Map<SegmentId, SegmentConfig>([
     [FORWARD_LINK_SEGMENT_ID, forwardLinkConfig],
+    [BACKLINK_SEGMENT_ID, backlinkConfig],
   ]);
 
   register(plugin: Plugin) {
