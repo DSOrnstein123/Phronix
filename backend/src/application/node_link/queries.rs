@@ -15,7 +15,7 @@ impl<'a, R: NodeLinkRepository> NodeLinkQuery<'a, R> {
         self.repo.get_forward_links(id).await
     }
 
-    // pub async fn get_backlinks(&self, id: &str) -> Result<Vec<NodeMetadata>, NodeError> {
-    //     self.repo.get_backlinks(id).await
-    // }
+    pub async fn get_backlinks(&self, id: &str) -> Result<Vec<NodeMetadata>, NodeError> {
+        self.repo.get_backlinks(id).await
+    }
 }

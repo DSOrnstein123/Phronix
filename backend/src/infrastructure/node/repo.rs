@@ -389,6 +389,37 @@ impl NodeLinkRepository for SqliteNodeRepository {
         Ok(db_links.into_iter().map(Into::into).collect())
     }
 
+    async fn get_backlinks(&self, id: &str) -> Result<Vec<NodeMetadata>, NodeError> {
+        let db_links = query_as!(
+            DbNodeMetadata,
+            r#"
+              SELECT
+                id as "id!: String",
+                parent_id,
+                icon as "icon: Json<IconData>",
+                name,
+                kind,
+                type as node_type,
+                created_at,
+                updated_at,
+                is_trashed
+              FROM nodes n
+              JOIN node_links nl
+              ON nl.source_node_id = n.id
+              WHERE nl.target_node_id = ? AND is_trashed = 0
+            "#,
+            id
+        )
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| match e {
+            sqlx::Error::RowNotFound => NodeError::NotFound(id.to_string()),
+            e => NodeError::Database(e.to_string()),
+        })?;
+
+        Ok(db_links.into_iter().map(Into::into).collect())
+    }
+
     async fn create(&self, source_node_id: &str, target_node_id: &str) -> Result<(), NodeError> {
         query!(
             r"
