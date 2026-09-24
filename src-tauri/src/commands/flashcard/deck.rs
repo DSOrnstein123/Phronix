@@ -5,6 +5,7 @@ use tauri::State;
 use crate::AppState;
 
 #[tauri::command]
+#[specta::specta]
 pub async fn get_decks(state: State<'_, AppState>) -> Result<Vec<Deck>, String> {
     backend::infrastructure::flashcard::deck::repo::get_decks(&state.db)
         .await
@@ -12,6 +13,7 @@ pub async fn get_decks(state: State<'_, AppState>) -> Result<Vec<Deck>, String> 
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn get_cards_from_deck(
     state: State<'_, AppState>,
     deck_id: Uuid,
@@ -22,6 +24,7 @@ pub async fn get_cards_from_deck(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn create_deck(
     state: State<'_, AppState>,
     name: String,

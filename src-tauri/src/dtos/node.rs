@@ -7,7 +7,7 @@ use serde_json::{json, Value};
 
 use crate::dtos::icon::IconDataDto;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct NodeMetadataDto {
     pub id: String,
@@ -38,7 +38,7 @@ impl From<NodeMetadata> for NodeMetadataDto {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct NodeDetailDto {
     #[serde(flatten)]
@@ -57,7 +57,7 @@ impl From<NodeDetail> for NodeDetailDto {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, specta::Type)]
 pub struct CreateNodePayload {
     pub parent_id: Option<String>,
     pub name: String,

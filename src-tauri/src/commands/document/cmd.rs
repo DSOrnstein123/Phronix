@@ -3,6 +3,7 @@ use backend::infrastructure::document::models::DocumentFile;
 use tauri::State;
 
 #[tauri::command]
+#[specta::specta]
 pub async fn create_document(
     state: State<'_, AppState>,
     parent_id: Option<String>,
@@ -13,6 +14,7 @@ pub async fn create_document(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn update_document(
     state: State<'_, AppState>,
     id: String,

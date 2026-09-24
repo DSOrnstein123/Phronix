@@ -5,7 +5,7 @@ pub mod node;
 pub mod node_link;
 
 #[macro_export]
-macro_rules! app_commands {
+macro_rules! app_builder {
     () => {{
         // use $crate::commands::features::collection::cmd as collection;
         use $crate::commands::document::cmd as docucment;
@@ -13,7 +13,7 @@ macro_rules! app_commands {
         use $crate::commands::node;
         use $crate::commands::node_link;
 
-        tauri::generate_handler![
+        tauri_specta::Builder::<tauri::Wry>::new().commands(tauri_specta::collect_commands![
             //core/node
             node::get_nodes,
             node::get_node_detail,
@@ -24,6 +24,7 @@ macro_rules! app_commands {
             node::apply_template,
             // node_link
             node_link::get_forward_links,
+            node_link::get_backlinks,
             node_link::create_link_with_metadata,
             // flashcard
             deck::get_decks,
@@ -39,6 +40,6 @@ macro_rules! app_commands {
             // collection::create_document_in_collection,
             // collection::get_documents_in_collection,
             // collection::update_document_property
-        ]
+        ])
     }};
 }

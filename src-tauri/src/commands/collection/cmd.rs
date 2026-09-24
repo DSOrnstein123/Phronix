@@ -4,6 +4,7 @@ use tauri::State;
 use crate::AppState;
 
 #[tauri::command]
+#[specta::specta]
 pub async fn get_collection(state: State<'_, AppState>, id: String) -> Result<Collection, String> {
     backend::infrastructure::collection::collection::get_collection(&state.db, id)
         .await
@@ -11,6 +12,7 @@ pub async fn get_collection(state: State<'_, AppState>, id: String) -> Result<Co
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn create_collection(state: State<'_, AppState>) -> Result<Collection, String> {
     backend::infrastructure::collection::collection::create_collection(&state.db)
         .await
@@ -18,6 +20,7 @@ pub async fn create_collection(state: State<'_, AppState>) -> Result<Collection,
 }
 
 // #[tauri::command]
+#[specta::specta]
 // pub async fn create_document_in_collection(
 //     state: State<'_, AppState>,
 //     collection_id: String,
@@ -26,8 +29,8 @@ pub async fn create_collection(state: State<'_, AppState>) -> Result<Collection,
 //         .await
 //         .map_err(|e| e.to_string())
 // }
-
 #[tauri::command]
+#[specta::specta]
 pub async fn get_documents_in_collection(
     state: State<'_, AppState>,
     collection_id: String,
@@ -38,6 +41,7 @@ pub async fn get_documents_in_collection(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn create_document_in_collection(
     state: State<'_, AppState>,
     collection_id: String,
@@ -51,6 +55,7 @@ pub async fn create_document_in_collection(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn create_property(
     state: State<'_, AppState>,
     collection_id: String,
@@ -68,6 +73,7 @@ pub async fn create_property(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn update_document_property(
     state: State<'_, AppState>,
     document_id: String,

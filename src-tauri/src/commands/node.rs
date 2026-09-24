@@ -18,6 +18,7 @@ use crate::{
 };
 
 #[tauri::command]
+#[specta::specta]
 pub async fn get_nodes(
     state: State<'_, AppState>,
     options: Option<NodeFilterOptions>,
@@ -32,6 +33,7 @@ pub async fn get_nodes(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn get_node_detail(
     state: State<'_, AppState>,
     id: &str,
@@ -46,6 +48,7 @@ pub async fn get_node_detail(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn get_details_by_ids(
     state: State<'_, AppState>,
     ids: Vec<String>,
@@ -62,6 +65,7 @@ pub async fn get_details_by_ids(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn create_node(
     state: State<'_, AppState>,
     payload: CreateNodePayload,
@@ -78,6 +82,7 @@ pub async fn create_node(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn update_node_name(
     state: State<'_, AppState>,
     id: &str,
@@ -93,6 +98,7 @@ pub async fn update_node_name(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn update_node_data(
     state: State<'_, AppState>,
     id: &str,
@@ -108,6 +114,7 @@ pub async fn update_node_data(
 }
 
 #[tauri::command]
+#[specta::specta]
 pub async fn apply_template(
     state: State<'_, AppState>,
     template_id: &str,

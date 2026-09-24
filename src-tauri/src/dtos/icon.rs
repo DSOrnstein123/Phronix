@@ -1,7 +1,7 @@
 use backend::domain::models::icon::IconData;
 use serde::Serialize;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct IconDataDto {
     #[serde(rename = "type")]
