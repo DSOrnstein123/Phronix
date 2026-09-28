@@ -1,12 +1,12 @@
+pub mod commands;
+pub mod dtos;
+
 use backend::{
     database::{connect::connect, migrate::migrate},
     infrastructure::node::repo::SqliteNodeRepository,
 };
 use sqlx::SqlitePool;
 use tauri::Manager;
-
-pub mod commands;
-pub mod dtos;
 
 #[allow(dead_code)]
 pub struct AppState {
@@ -19,16 +19,25 @@ pub fn run() {
     let specta_builder = app_builder!();
 
     #[cfg(debug_assertions)]
-    specta_builder
-        .export(
-            specta_typescript::Typescript::default(),
-            "../frontend/src/infrastructure/bindings.ts",
-        )
-        .expect("Failed to export typescript bindings");
+    std::thread::Builder::new()
+        .stack_size(8 * 1024 * 1024)
+        .spawn(|| {
+            let builder = app_builder!();
+            builder
+                .export(
+                    specta_typescript::Typescript::default(),
+                    "../frontend/src/infrastructure/bindings.ts",
+                )
+                .expect("Failed to export typescript bindings");
+        })
+        .unwrap()
+        .join()
+        .unwrap();
 
+    let builder = specta_builder.clone();
     tauri::Builder::default()
         .setup(move |app| {
-            specta_builder.mount_events(app);
+            builder.mount_events(app);
 
             if cfg!(debug_assertions) {
                 app.handle().plugin(

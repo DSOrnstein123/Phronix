@@ -11,9 +11,7 @@ pub struct IconDataDto {
 
 impl From<IconData> for IconDataDto {
     fn from(domain: IconData) -> Self {
-        Self {
-            icon_type: domain.icon_type,
-            value: domain.value,
-        }
+        let IconData { icon_type, value } = domain;
+        Self { icon_type, value }
     }
 }

@@ -4,7 +4,7 @@ use sqlx::types::Json;
 
 use crate::domain::models::icon::IconData;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct DocumentFile {
     pub id: String,
@@ -12,6 +12,7 @@ pub struct DocumentFile {
     pub name: String,
     #[serde(rename = "type")]
     pub file_type: String,
+    #[specta(type = IconData)]
     pub icon: Json<IconData>,
     pub data: Option<String>,
     pub created_at: NaiveDateTime,

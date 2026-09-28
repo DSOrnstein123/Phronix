@@ -1,14 +1,17 @@
-use backend::infrastructure::flashcard::{card::repo::Card, deck::repo::Deck};
 use sqlx::types::Uuid;
 use tauri::State;
 
-use crate::AppState;
+use crate::{
+    dtos::flashcard::{CardDto, DeckDto},
+    AppState,
+};
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_decks(state: State<'_, AppState>) -> Result<Vec<Deck>, String> {
+pub async fn get_decks(state: State<'_, AppState>) -> Result<Vec<DeckDto>, String> {
     backend::infrastructure::flashcard::deck::repo::get_decks(&state.db)
         .await
+        .map(|decks| decks.into_iter().map(Into::into).collect())
         .map_err(|e| e.to_string())
 }
 
@@ -17,9 +20,10 @@ pub async fn get_decks(state: State<'_, AppState>) -> Result<Vec<Deck>, String> 
 pub async fn get_cards_from_deck(
     state: State<'_, AppState>,
     deck_id: Uuid,
-) -> Result<Vec<Card>, String> {
+) -> Result<Vec<CardDto>, String> {
     backend::infrastructure::flashcard::card::repo::get_cards_from_deck(&state.db, deck_id)
         .await
+        .map(|cards| cards.into_iter().map(Into::into).collect())
         .map_err(|e| e.to_string())
 }
 
@@ -29,8 +33,9 @@ pub async fn create_deck(
     state: State<'_, AppState>,
     name: String,
     parent_id: Option<Uuid>,
-) -> Result<Deck, String> {
+) -> Result<DeckDto, String> {
     backend::infrastructure::flashcard::deck::repo::create_deck(&state.db, name, parent_id)
         .await
+        .map(Into::into)
         .map_err(|e| e.to_string())
 }

@@ -1,15 +1,11 @@
-use backend::{
-    application::node::{
-        dtos::CreateNodeInput,
-        queries::NodeQuery,
-        use_cases::{
-            apply_template::ApplyTemplateUseCase, create_node::CreateNodeUseCase,
-            update_node_data::UpdateNodeDataUseCase, update_node_name::UpdateNodeNameUseCase,
-        },
+use backend::application::node::{
+    dtos::CreateNodeInput,
+    queries::NodeQuery,
+    use_cases::{
+        apply_template::ApplyTemplateUseCase, create_node::CreateNodeUseCase,
+        update_node_data::UpdateNodeDataUseCase, update_node_name::UpdateNodeNameUseCase,
     },
-    domain::models::node::NodeFilterOptions,
 };
-use serde_json::Value;
 use tauri::State;
 
 use crate::{
@@ -21,12 +17,12 @@ use crate::{
 #[specta::specta]
 pub async fn get_nodes(
     state: State<'_, AppState>,
-    options: Option<NodeFilterOptions>,
+    options: Option<crate::dtos::node::NodeFilterOptionsDto>,
 ) -> Result<Vec<NodeMetadataDto>, String> {
     let query_service = NodeQuery::new(&state.node_repo);
 
     query_service
-        .get_nodes(options)
+        .get_nodes(options.map(Into::into))
         .await
         .map(|domain_nodes| domain_nodes.into_iter().map(Into::into).collect())
         .map_err(|err| err.to_string())
@@ -97,17 +93,19 @@ pub async fn update_node_name(
         .map_err(|err| err.to_string())
 }
 
+use crate::dtos::any_json::AnyJsonValue;
+
 #[tauri::command]
 #[specta::specta]
 pub async fn update_node_data(
     state: State<'_, AppState>,
     id: &str,
-    new_data: Value,
+    new_data: AnyJsonValue,
 ) -> Result<(), String> {
     let use_case = UpdateNodeDataUseCase::new(&state.node_repo);
 
     use_case
-        .execute(id, new_data)
+        .execute(id, new_data.0)
         .await
         .map(|_| ())
         .map_err(|err| err.to_string())

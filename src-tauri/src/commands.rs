@@ -33,13 +33,6 @@ macro_rules! app_builder {
             // document
             docucment::create_document,
             docucment::update_document,
-            // collection
-            // collection::create_collection,
-            // collection::create_property,
-            // collection::get_collection,
-            // collection::create_document_in_collection,
-            // collection::get_documents_in_collection,
-            // collection::update_document_property
         ])
     }};
 }

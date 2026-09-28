@@ -2,7 +2,7 @@ use serde::Serialize;
 use sqlx::{SqlitePool, query_as};
 use uuid::Uuid;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, specta::Type)]
 #[allow(dead_code)]
 pub struct Card {
     pub id: Uuid,
