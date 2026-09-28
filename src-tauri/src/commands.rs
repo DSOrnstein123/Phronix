@@ -1,5 +1,4 @@
 // pub mod collection;
-pub mod document;
 pub mod flashcard;
 pub mod node;
 pub mod node_link;
@@ -8,7 +7,6 @@ pub mod node_link;
 macro_rules! app_builder {
     () => {{
         // use $crate::commands::features::collection::cmd as collection;
-        use $crate::commands::document::cmd as docucment;
         use $crate::commands::flashcard::deck;
         use $crate::commands::node;
         use $crate::commands::node_link;
@@ -30,9 +28,6 @@ macro_rules! app_builder {
             deck::get_decks,
             deck::get_cards_from_deck,
             deck::create_deck,
-            // document
-            docucment::create_document,
-            docucment::update_document,
         ])
     }};
 }
