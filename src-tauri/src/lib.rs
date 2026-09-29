@@ -26,7 +26,7 @@ pub fn run() {
             builder
                 .export(
                     specta_typescript::Typescript::default(),
-                    "../frontend/src/infrastructure/bindings.ts",
+                    "../frontend/src/infrastructure/tauri/bindings.ts",
                 )
                 .expect("Failed to export typescript bindings");
         })
