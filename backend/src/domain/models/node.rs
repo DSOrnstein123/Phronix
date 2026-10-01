@@ -85,10 +85,10 @@ pub struct NodeDetail {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct NodeFilterOptions {
-    pub include_kinds: Option<Vec<NodeKind>>,
-    pub include_types: Option<Vec<String>>,
-    pub exclude_kinds: Option<Vec<NodeKind>>,
-    pub exclude_types: Option<Vec<String>>,
+    pub include_kinds: Vec<NodeKind>,
+    pub include_types: Vec<String>,
+    pub exclude_kinds: Vec<NodeKind>,
+    pub exclude_types: Vec<String>,
 }
 
 impl std::fmt::Display for NodeKind {

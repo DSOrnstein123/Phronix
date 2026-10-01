@@ -1,52 +1,59 @@
 use backend::{
     application::node::dtos::CreateNodeInput,
-    domain::models::node::{NodeDetail, NodeKind, NodeMetadata},
+    domain::models::node::{
+        NodeDetail as DomainNodeDetail, NodeFilterOptions as DomainNodeFilterOptions,
+        NodeKind as DomainNodeKind, NodeMetadata as DomainNodeMetadata,
+    },
 };
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
-use crate::dtos::icon::IconDataDto;
+use crate::dtos::icon::IconData;
 
 #[derive(Debug, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "lowercase")]
-pub enum NodeKindDto {
+pub enum NodeKind {
     Folder,
     File,
     Template,
 }
 
-impl From<NodeKind> for NodeKindDto {
-    fn from(kind: NodeKind) -> Self {
+impl From<DomainNodeKind> for NodeKind {
+    fn from(kind: DomainNodeKind) -> Self {
         match kind {
-            NodeKind::Folder => NodeKindDto::Folder,
-            NodeKind::File => NodeKindDto::File,
-            NodeKind::Template => NodeKindDto::Template,
+            DomainNodeKind::Folder => NodeKind::Folder,
+            DomainNodeKind::File => NodeKind::File,
+            DomainNodeKind::Template => NodeKind::Template,
         }
     }
 }
 
-impl From<NodeKindDto> for NodeKind {
-    fn from(dto: NodeKindDto) -> Self {
+impl From<NodeKind> for DomainNodeKind {
+    fn from(dto: NodeKind) -> Self {
         match dto {
-            NodeKindDto::Folder => NodeKind::Folder,
-            NodeKindDto::File => NodeKind::File,
-            NodeKindDto::Template => NodeKind::Template,
+            NodeKind::Folder => DomainNodeKind::Folder,
+            NodeKind::File => DomainNodeKind::File,
+            NodeKind::Template => DomainNodeKind::Template,
         }
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, specta::Type)]
+#[derive(Debug, Serialize, Deserialize, Default, specta::Type)]
 #[serde(rename_all = "camelCase")]
-pub struct NodeFilterOptionsDto {
-    pub include_kinds: Option<Vec<NodeKindDto>>,
-    pub include_types: Option<Vec<String>>,
-    pub exclude_kinds: Option<Vec<NodeKindDto>>,
-    pub exclude_types: Option<Vec<String>>,
+pub struct NodeFilterOptions {
+    #[serde(default)]
+    pub include_kinds: Vec<NodeKind>,
+    #[serde(default)]
+    pub include_types: Vec<String>,
+    #[serde(default)]
+    pub exclude_kinds: Vec<NodeKind>,
+    #[serde(default)]
+    pub exclude_types: Vec<String>,
 }
 
-impl From<NodeFilterOptionsDto> for backend::domain::models::node::NodeFilterOptions {
-    fn from(dto: NodeFilterOptionsDto) -> Self {
-        let NodeFilterOptionsDto {
+impl From<NodeFilterOptions> for DomainNodeFilterOptions {
+    fn from(dto: NodeFilterOptions) -> Self {
+        let NodeFilterOptions {
             include_kinds,
             include_types,
             exclude_kinds,
@@ -54,9 +61,12 @@ impl From<NodeFilterOptionsDto> for backend::domain::models::node::NodeFilterOpt
         } = dto;
 
         Self {
-            include_kinds: include_kinds.map(|kinds| kinds.into_iter().map(Into::into).collect()),
+            include_kinds: include_kinds.into_iter().map(Into::into).collect(),
+
             include_types,
-            exclude_kinds: exclude_kinds.map(|kinds| kinds.into_iter().map(Into::into).collect()),
+
+            exclude_kinds: exclude_kinds.into_iter().map(Into::into).collect(),
+
             exclude_types,
         }
     }
@@ -64,12 +74,12 @@ impl From<NodeFilterOptionsDto> for backend::domain::models::node::NodeFilterOpt
 
 #[derive(Debug, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
-pub struct NodeMetadataDto {
+pub struct NodeMetadata {
     pub id: String,
     pub parent_id: Option<String>,
-    pub icon: IconDataDto,
+    pub icon: IconData,
     pub name: String,
-    pub kind: NodeKindDto,
+    pub kind: NodeKind,
     #[serde(rename = "type")]
     pub node_type: String,
     pub created_at: String,
@@ -77,9 +87,9 @@ pub struct NodeMetadataDto {
     pub is_trashed: bool,
 }
 
-impl From<NodeMetadata> for NodeMetadataDto {
-    fn from(domain: NodeMetadata) -> Self {
-        let NodeMetadata {
+impl From<DomainNodeMetadata> for NodeMetadata {
+    fn from(domain: DomainNodeMetadata) -> Self {
+        let DomainNodeMetadata {
             id,
             parent_id,
             icon,
@@ -107,18 +117,18 @@ impl From<NodeMetadata> for NodeMetadataDto {
 
 #[derive(Debug, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
-pub struct NodeDetailDto {
+pub struct NodeDetail {
     #[serde(flatten)]
-    pub metadata: NodeMetadataDto,
+    pub metadata: NodeMetadata,
     #[specta(type = crate::dtos::any_json::AnyJsonValue)]
     pub data: Value,
     #[specta(type = crate::dtos::any_json::AnyJsonValue)]
     pub properties: Value,
 }
 
-impl From<NodeDetail> for NodeDetailDto {
-    fn from(domain: NodeDetail) -> Self {
-        let NodeDetail {
+impl From<DomainNodeDetail> for NodeDetail {
+    fn from(domain: DomainNodeDetail) -> Self {
+        let DomainNodeDetail {
             metadata,
             data,
             properties,
@@ -136,7 +146,7 @@ impl From<NodeDetail> for NodeDetailDto {
 pub struct CreateNodePayload {
     pub parent_id: Option<String>,
     pub name: String,
-    pub kind: NodeKindDto,
+    pub kind: NodeKind,
     #[serde(rename = "type")]
     pub node_type: String,
     #[serde(default = "default_node_data")]

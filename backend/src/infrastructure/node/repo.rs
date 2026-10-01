@@ -52,10 +52,7 @@ impl NodeRepository for SqliteNodeRepository {
         Ok(db_node.into())
     }
 
-    async fn get_list(
-        &self,
-        options: Option<NodeFilterOptions>,
-    ) -> Result<Vec<NodeMetadata>, NodeError> {
+    async fn get_list(&self, options: NodeFilterOptions) -> Result<Vec<NodeMetadata>, NodeError> {
         let mut builder: QueryBuilder<Sqlite> = QueryBuilder::new(
             r#"
             SELECT 
@@ -73,50 +70,52 @@ impl NodeRepository for SqliteNodeRepository {
             "#,
         );
 
-        if let Some(opts) = options {
-            if let Some(kinds) = opts.include_kinds {
-                if !kinds.is_empty() {
-                    builder.push(" AND kind IN (");
-                    let mut separated = builder.separated(", ");
-                    for k in kinds {
-                        separated.push_bind(k.to_string());
-                    }
-                    separated.push_unseparated(")");
-                }
+        if !options.include_kinds.is_empty() {
+            builder.push(" AND kind IN (");
+
+            let mut separated = builder.separated(", ");
+
+            for kind in &options.include_kinds {
+                separated.push_bind(kind.to_string());
             }
 
-            if let Some(kinds) = opts.exclude_kinds {
-                if !kinds.is_empty() {
-                    builder.push(" AND kind NOT IN (");
-                    let mut separated = builder.separated(", ");
-                    for k in kinds {
-                        separated.push_bind(k.to_string());
-                    }
-                    separated.push_unseparated(")");
-                }
+            separated.push_unseparated(")");
+        }
+
+        if !options.exclude_kinds.is_empty() {
+            builder.push(" AND kind NOT IN (");
+
+            let mut separated = builder.separated(", ");
+
+            for kind in &options.exclude_kinds {
+                separated.push_bind(kind.to_string());
             }
 
-            if let Some(types) = opts.include_types {
-                if !types.is_empty() {
-                    builder.push(" AND type IN (");
-                    let mut separated = builder.separated(", ");
-                    for t in types {
-                        separated.push_bind(t);
-                    }
-                    separated.push_unseparated(")");
-                }
+            separated.push_unseparated(")");
+        }
+
+        if !options.include_types.is_empty() {
+            builder.push(" AND type IN (");
+
+            let mut separated = builder.separated(", ");
+
+            for node_type in &options.include_types {
+                separated.push_bind(node_type);
             }
 
-            if let Some(types) = opts.exclude_types {
-                if !types.is_empty() {
-                    builder.push(" AND type NOT IN (");
-                    let mut separated = builder.separated(", ");
-                    for t in types {
-                        separated.push_bind(t);
-                    }
-                    separated.push_unseparated(")");
-                }
+            separated.push_unseparated(")");
+        }
+
+        if !options.exclude_types.is_empty() {
+            builder.push(" AND type NOT IN (");
+
+            let mut separated = builder.separated(", ");
+
+            for node_type in &options.exclude_types {
+                separated.push_bind(node_type);
             }
+
+            separated.push_unseparated(")");
         }
 
         let nodes = builder

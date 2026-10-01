@@ -9,7 +9,7 @@ use backend::application::node::{
 use tauri::State;
 
 use crate::{
-    dtos::node::{CreateNodePayload, NodeDetailDto, NodeMetadataDto},
+    dtos::node::{CreateNodePayload, NodeDetail, NodeFilterOptions, NodeMetadata},
     AppState,
 };
 
@@ -17,12 +17,12 @@ use crate::{
 #[specta::specta]
 pub async fn get_nodes(
     state: State<'_, AppState>,
-    options: Option<crate::dtos::node::NodeFilterOptionsDto>,
-) -> Result<Vec<NodeMetadataDto>, String> {
+    options: Option<NodeFilterOptions>,
+) -> Result<Vec<NodeMetadata>, String> {
     let query_service = NodeQuery::new(&state.node_repo);
 
     query_service
-        .get_nodes(options.map(Into::into))
+        .get_nodes(options.unwrap_or_default().into())
         .await
         .map(|domain_nodes| domain_nodes.into_iter().map(Into::into).collect())
         .map_err(|err| err.to_string())
@@ -30,10 +30,7 @@ pub async fn get_nodes(
 
 #[tauri::command]
 #[specta::specta]
-pub async fn get_node_detail(
-    state: State<'_, AppState>,
-    id: &str,
-) -> Result<NodeDetailDto, String> {
+pub async fn get_node_detail(state: State<'_, AppState>, id: &str) -> Result<NodeDetail, String> {
     let query_service = NodeQuery::new(&state.node_repo);
 
     query_service
@@ -48,7 +45,7 @@ pub async fn get_node_detail(
 pub async fn get_details_by_ids(
     state: State<'_, AppState>,
     ids: Vec<String>,
-) -> Result<Vec<NodeDetailDto>, String> {
+) -> Result<Vec<NodeDetail>, String> {
     let query_service = NodeQuery::new(&state.node_repo);
 
     let ids: &[String] = &ids;
@@ -65,7 +62,7 @@ pub async fn get_details_by_ids(
 pub async fn create_node(
     state: State<'_, AppState>,
     payload: CreateNodePayload,
-) -> Result<NodeDetailDto, String> {
+) -> Result<NodeDetail, String> {
     let input: CreateNodeInput = payload.into();
 
     let use_case = CreateNodeUseCase::new(&state.node_repo);
@@ -117,7 +114,7 @@ pub async fn apply_template(
     state: State<'_, AppState>,
     template_id: &str,
     target_id: &str,
-) -> Result<NodeDetailDto, String> {
+) -> Result<NodeDetail, String> {
     let use_case = ApplyTemplateUseCase::new(&state.node_repo);
 
     use_case

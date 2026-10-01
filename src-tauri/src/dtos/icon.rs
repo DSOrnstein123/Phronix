@@ -1,17 +1,17 @@
-use backend::domain::models::icon::IconData;
+use backend::domain::models::icon::IconData as DomainIconData;
 use serde::Serialize;
 
 #[derive(Debug, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
-pub struct IconDataDto {
+pub struct IconData {
     #[serde(rename = "type")]
     pub icon_type: String,
     pub value: String,
 }
 
-impl From<IconData> for IconDataDto {
-    fn from(domain: IconData) -> Self {
-        let IconData { icon_type, value } = domain;
+impl From<DomainIconData> for IconData {
+    fn from(domain: DomainIconData) -> Self {
+        let DomainIconData { icon_type, value } = domain;
         Self { icon_type, value }
     }
 }

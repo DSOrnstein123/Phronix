@@ -1,41 +1,33 @@
-use backend::infrastructure::flashcard::{card::repo::Card, deck::repo::Deck};
+use backend::infrastructure::flashcard::{card::repo::Card as DomainCard, deck::repo::Deck as DomainDeck};
 use serde::Serialize;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
-pub struct DeckDto {
+pub struct Deck {
     pub id: Uuid,
     pub name: String,
     pub parent_id: Option<Uuid>,
 }
 
-impl From<Deck> for DeckDto {
-    fn from(domain: Deck) -> Self {
-        let Deck {
-            id,
-            name,
-            parent_id,
-        } = domain;
-        Self {
-            id,
-            name,
-            parent_id,
-        }
+impl From<DomainDeck> for Deck {
+    fn from(domain: DomainDeck) -> Self {
+        let DomainDeck { id, name, parent_id } = domain;
+        Self { id, name, parent_id }
     }
 }
 
 #[derive(Debug, Serialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
-pub struct CardDto {
+pub struct Card {
     pub id: Uuid,
     pub front: String,
     pub back: String,
 }
 
-impl From<Card> for CardDto {
-    fn from(domain: Card) -> Self {
-        let Card { id, front, back } = domain;
+impl From<DomainCard> for Card {
+    fn from(domain: DomainCard) -> Self {
+        let DomainCard { id, front, back } = domain;
         Self { id, front, back }
     }
 }

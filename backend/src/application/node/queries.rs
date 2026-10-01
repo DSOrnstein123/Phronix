@@ -13,7 +13,7 @@ impl<'a, R: NodeRepository> NodeQuery<'a, R> {
 
     pub async fn get_nodes(
         &self,
-        options: Option<NodeFilterOptions>,
+        options: NodeFilterOptions,
     ) -> Result<Vec<NodeMetadata>, NodeError> {
         self.repo.get_list(options).await
     }

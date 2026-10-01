@@ -4,14 +4,14 @@ use backend::application::{
 };
 use tauri::State;
 
-use crate::{dtos::node::NodeMetadataDto, AppState};
+use crate::{dtos::node::NodeMetadata, AppState};
 
 #[tauri::command]
 #[specta::specta]
 pub async fn get_forward_links(
     state: State<'_, AppState>,
     source_node_id: &str,
-) -> Result<Vec<NodeMetadataDto>, String> {
+) -> Result<Vec<NodeMetadata>, String> {
     let query = NodeLinkQuery::new(&state.node_repo);
 
     query
@@ -26,7 +26,7 @@ pub async fn get_forward_links(
 pub async fn get_backlinks(
     state: State<'_, AppState>,
     target_node_id: &str,
-) -> Result<Vec<NodeMetadataDto>, String> {
+) -> Result<Vec<NodeMetadata>, String> {
     let query = NodeLinkQuery::new(&state.node_repo);
 
     query
@@ -42,7 +42,7 @@ pub async fn create_link_with_metadata(
     state: State<'_, AppState>,
     source_node_id: &str,
     target_node_id: &str,
-) -> Result<NodeMetadataDto, String> {
+) -> Result<NodeMetadata, String> {
     let use_case = CreateNodeLinkUseCase::new(&state.node_repo);
 
     use_case
