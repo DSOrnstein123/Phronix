@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import {
   NodeDetailSchema,
   NodeMetadataListSchema,
@@ -7,14 +6,13 @@ import {
 import type { CreateNodePayload, NodeListOptions } from "./types/payload";
 import type { NodeType } from "@system/plugin-manager/plugin";
 import type { NodeDetailMap } from "@system/entry/categories/node/core/types";
+import { commands } from "../../../../../infrastructure/tauri/bindings";
 
 //TODO: add zod validate
 export const nodeService = {
   getDetail: async (id: string) => {
     try {
-      const rawData = await invoke<NodeDetail>("get_node_detail", {
-        id: id,
-      });
+      const rawData = await commands.getNodeDetail(id);
       console.log(rawData);
       const nodeDetail = NodeDetailSchema.parse(rawData);
       // const schema = pluginManager.getNodeSchema(rawData.type);
@@ -31,7 +29,7 @@ export const nodeService = {
   },
   getList: async (options?: NodeListOptions) => {
     try {
-      const rawData = await invoke("get_nodes", { options });
+      const rawData = await commands.getNodes(options ?? null);
       console.log(rawData);
       return NodeMetadataListSchema.parse(rawData);
     } catch (error) {
@@ -41,7 +39,7 @@ export const nodeService = {
   },
   getDetails: async (ids: string[]) => {
     try {
-      return invoke<NodeDetail[]>("get_details_by_ids", { ids: ids });
+      return commands.getDetailsByIds(ids);
     } catch (error) {
       console.error(error);
       throw error;
@@ -49,7 +47,7 @@ export const nodeService = {
   },
   create: async <T extends NodeDetail>(payload: CreateNodePayload) => {
     try {
-      const data = await invoke("create_node", { payload: payload });
+      const data = await commands.createNode(payload);
       console.log(data);
       return data as T;
     } catch (error) {
@@ -58,13 +56,13 @@ export const nodeService = {
     }
   },
   updateName: (id: string, newName: string) =>
-    invoke("update_node_name", { id: id, newName: newName }),
+    commands.updateNodeName(id, newName),
   putData: <N extends NodeType>(
     id: string,
     newData: NodeDetailMap<N>["data"],
-  ) => invoke("update_node_data", { id: id, newData: newData }),
+  ) => commands.updateNodeData(id, newData),
   patchData: <N extends NodeType>(
     id: string,
     newData: Partial<NodeDetailMap<N>["data"]>,
-  ) => invoke("update_node_data", { id: id, newData: newData }),
+  ) => commands.updateNodeData(id, newData),
 };

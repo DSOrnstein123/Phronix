@@ -3,6 +3,7 @@ import { pluginManager } from "@system/plugin-manager/pluginManager";
 import { IconDataSchema } from "@system/shared/schemas/iconData";
 import { SimpleUUIDSchema } from "@system/shared/schemas/simpleUUIDSchema";
 import z from "zod";
+import type { NodeMetadataContract } from "../../../../../infrastructure/tauri";
 
 const NodeKindSchema = z.enum(["file", "folder", "template"]);
 type NodeKind = z.infer<typeof NodeKindSchema>;
@@ -23,7 +24,7 @@ const NodeMetadataSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
   isTrashed: z.boolean(),
-});
+}) satisfies z.ZodType<NodeMetadataContract>;
 type NodeMetadata = z.infer<typeof NodeMetadataSchema>;
 const NodeMetadataListSchema = z.array(NodeMetadataSchema);
 type NodeMetadataList = z.infer<typeof NodeMetadataListSchema>;
